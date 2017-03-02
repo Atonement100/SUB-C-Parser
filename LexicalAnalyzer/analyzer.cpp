@@ -1,5 +1,4 @@
 #include "analyzer.h"
-#include "token.h"
 
 int main(int argc, char* argv[]) {
 	if (argc < 2) {
@@ -9,8 +8,10 @@ int main(int argc, char* argv[]) {
 
 	Lexer lexer = Lexer(argv[1]);
 
-	while (lexer.peekIfstream() != EOF) {
-		std::cout << "token: " << lexer.getToken() << std::endl;
+	Token currentToken;
+	while (lexer.peekInput() != EOF) {
+		currentToken = lexer.getToken();
+		std::cout << "token: " << currentToken.getText() << " type: " << currentToken.getType() << std::endl;
 	}
 
 	return 0;
@@ -19,106 +20,228 @@ int main(int argc, char* argv[]) {
 Lexer::Lexer(char* filename) {
 	this->inFile.open(filename, std::ifstream::in);
 
-
 	if (!this->inFile.is_open()) {
 		std::cerr << "Unable to open file " << filename << std::endl;
 		exit(-2);
 	}
 }
 
-std::string Lexer::getToken() {
-	token = "";
+Token Lexer::getToken() {
+	tokenStr = "";
 	inFile.get(nextch);
-	token += nextch;
+	tokenStr += nextch;
 
 	if (isWhiteSpace(nextch)) completeWhiteSpaceToken();
-	else if (isalpha(nextch) || nextch == '_') completeIdentifierToken();
+	else if (isalpha(nextch) || nextch == '_') {
+		completeAlphaToken();
+		identifyAlphaToken(tokenStr);
+	}
 	else if (isdigit(nextch)) completeNumericToken();
 	else {
 		switch (nextch) {
-		case '\n':
 		case '\r':
-			token = "NEWLINE";
+			if (peekInput() == '\n') inFile.get(nextch); //Consume CRLF
+		case '\n':
+			tokenStr = "NEWLINE";
+			nextTokenType = TokenType::ENDLINE;
 			break;
+
 		case '\'': //Char
-				   completeCharToken();
+			completeCharToken();
 			break;
 		case '"':  //String
-				   completeStringToken();
+			completeStringToken();
 			break;
 		case '{':  //Comment
-				   completeCommentToken();
+			completeCommentToken();
+			break;
+		case ':': //Swap, Assignment, or standalone colon
+			completeColonToken();
+			break;
+		case '<': //<, <=, <>
+			completeLessThanToken();
+			break;
+		case '>': //>, >=
+			completeGreaterThanToken();
+			break;
+		case '=': //=
+			nextTokenType = TokenType::EQUAL;
+			break;
+		case ';':
+			nextTokenType = TokenType::SEMICOLON;
+			break;
+		case '.':
+			completeDotToken();
+			break;
+		case ',':
+			nextTokenType = TokenType::COMMA;
+			break;
+		case '(':
+			nextTokenType = TokenType::PARENTHESIS_START;
+			break;
+		case ')':
+			nextTokenType = TokenType::PARENTHESIS_END;
+			break;
+		case '+':
+			nextTokenType = TokenType::PLUS;
+			break;
+		case '-':
+			nextTokenType = TokenType::MINUS;
+			break;
+		case '*':
+			nextTokenType = TokenType::MULTIPLY;
+			break;
+		case '/':
+			nextTokenType = TokenType::DIVIDE;
 			break;
 		default:
 			/*Either error or as-of-yet undefined behavior here*/
-			token = std::to_string((int)(nextch)) + " = " + nextch + " << INVALID TOKEN ";
+			tokenStr = std::to_string((int)(nextch)) + " = " + nextch + " << INVALID TOKEN ";
+			nextTokenType = TokenType::INVALID;
 			break;
 		}
 	}
 
-	return token;
+	return Token(tokenStr, nextTokenType);
+}
+
+int Lexer::completeColonToken() {
+	if (peekInput() == '=') {
+		inFile.get(nextch);
+		tokenStr += nextch;
+		if (peekInput() == ':') { // :=:
+			inFile.get(nextch);
+			tokenStr += nextch;
+			nextTokenType = TokenType::SWAP;
+		}
+		else { // :=
+			nextTokenType = TokenType::ASSIGNMENT;
+		}
+	}
+	else { // :
+		nextTokenType = TokenType::COLON;
+	}
+
+	return tokenStr.length();
+}
+
+int Lexer::completeDotToken() {
+	if (peekInput() == '.') {
+		inFile.get(nextch);
+		tokenStr += nextch;
+		nextTokenType = TokenType::CASE_DOTS;
+	}
+	else {
+		nextTokenType = TokenType::DOT;
+	}
+	
+	return tokenStr.length();
+}
+
+int Lexer::completeGreaterThanToken() {
+	if (peekInput() == '=') { // >=
+		inFile.get(nextch);
+		tokenStr += nextch;
+		nextTokenType = TokenType::GREATER_OR_EQUAL;
+	}
+	else { // >
+		nextTokenType = TokenType::GREATER_THAN;
+	}
+
+	return tokenStr.length();
+}
+
+int Lexer::completeLessThanToken() {
+	if (peekInput() == '=') {
+		inFile.get(nextch);
+		tokenStr += nextch;
+		nextTokenType = TokenType::LESS_OR_EQUAL;
+	}
+	else if (peekInput() == '>') {
+		inFile.get(nextch);
+		tokenStr += nextch;
+		nextTokenType = TokenType::NOT_EQUAL;
+	}
+	else {
+		nextTokenType = TokenType::COLON;
+	}
+
+	return tokenStr.length();
 }
 
 int Lexer::completeWhiteSpaceToken() {
-	while (isWhiteSpace((char)(inFile.peek()))) {
+	while (isWhiteSpace(peekInput())) {
 		inFile.get(nextch);
-		token += nextch;
+		tokenStr += nextch;
 	}
-	return token.length();
+	nextTokenType = TokenType::WHITESPACE;
+	return tokenStr.length();
 }
 
-int Lexer::completeIdentifierToken() {
-	nextch = (char)(inFile.peek());
+int Lexer::completeAlphaToken() {
+	nextch = peekInput();
 	while (isalnum(nextch) || nextch == '_') {
 		inFile.get(nextch);
-		token += nextch;
-		nextch = (char)(inFile.peek());
+		tokenStr += nextch;
+		nextch = peekInput();
 	}
-	return token.length();
+
+	/*
+	* Need to add logic here to identify reserved tokens etc
+	*/
+
+	nextTokenType = TokenType::UNKNOWN;
+	return tokenStr.length();
 }
 
 int Lexer::completeNumericToken() {
-	nextch = (char)(inFile.peek());
+	nextch = peekInput();
 	while (isdigit(nextch)) {
 		inFile.get(nextch);
-		token += nextch;
-		nextch = (char)(inFile.peek());
+		tokenStr += nextch;
+		nextch = peekInput();
 	}
-	return token.length();
+
+	nextTokenType = TokenType::INTEGER;
+	return tokenStr.length();
 }
 
 int Lexer::completeCommentToken() {
 	inFile.get(nextch);
-	while (nextch != '}' && inFile.peek() != EOF) {
-		token += nextch;
+	while (nextch != '}' && peekInput() != EOF) {
+		tokenStr += nextch;
 		inFile.get(nextch);
 	}
 
 	if (nextch == '}') {
-		token += nextch;
+		tokenStr += nextch;
 	}
-	else {
-		token += "UNMATCHED BRACE";//Error
+	else { //EOF
+		tokenStr += "UNMATCHED BRACE";//Error
+		nextTokenType = TokenType::INVALID;
 	}
 
-	return token.length();
+	nextTokenType = TokenType::COMMENT;
+	return tokenStr.length();
 }
 
 int Lexer::completeStringToken() {
 	inFile.get(nextch);
-	while (nextch != '"' && inFile.peek() != EOF) {
-		token += nextch;
+	while (nextch != '"' && peekInput() != EOF) {
+		tokenStr += nextch;
 		inFile.get(nextch);
 	}
 
 	if (nextch == '"') {
-		token += nextch;
+		tokenStr += nextch;
 	}
-	else {
-		token += "UNMATCHED QUOTE";//Error
+	else { //EOF
+		tokenStr += "UNMATCHED QUOTE";//Error
+		nextTokenType = TokenType::INVALID;
 	}
 
-	return token.length();
+	nextTokenType = TokenType::STRING;
+	return tokenStr.length();
 }
 
 int Lexer::completeCharToken() {
@@ -128,13 +251,25 @@ int Lexer::completeCharToken() {
 	std::cout << nextch << nextchs[0] << nextchs[1];
 
 	if (nextchs[0] != '\'' && nextchs[1] == '\'') {
-		token += std::string(nextchs);
+		tokenStr += std::string(nextchs);
 	}
 	else {
-		token += "INCORRECT CHAR FORMAT";//Error
+		tokenStr += "INCORRECT CHAR FORMAT";//Error
+		nextTokenType = TokenType::INVALID;
 	}
 
-	return token.length();
+	nextTokenType = TokenType::CHAR;
+	return tokenStr.length();
+}
+
+TokenType Lexer::identifyAlphaToken(std::string token) {
+	auto mapIter = mapAlphaToTokenType.find(token);
+	if (mapIter != mapAlphaToTokenType.end()) {
+		return mapIter->second;
+	}
+	else {
+		return TokenType::IDENTIFIER;
+	}
 }
 
 bool Lexer::isWhiteSpace(const char ch) {

@@ -1,7 +1,13 @@
 #include <string>
 
-enum TokenType {
+typedef enum TokenType {
 	WHITESPACE,
+	ENDLINE,
+	IDENTIFIER,
+	INTEGER,
+	CHAR,
+	STRING,
+	COMMENT,
 	PROGRAM,
 	VAR,
 	CONST,
@@ -56,8 +62,9 @@ enum TokenType {
 	MINUS,
 	MULTIPLY,
 	DIVIDE,
-	UNKNOWN // error
-};
+	UNKNOWN, //unset
+	INVALID //error
+} TokenType;
 
 
 class Token {
@@ -66,6 +73,7 @@ protected:
 	TokenType type;
 
 public:
+	Token();
 	Token(std::string text, TokenType type);
 	std::string getText() { return this->text; }
 	TokenType getType() { return this->type; }
