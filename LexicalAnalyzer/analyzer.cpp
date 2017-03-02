@@ -14,15 +14,16 @@ int main(int argc, char* argv[]) {
 		return -2;
 	}
 
+	Lexer lexer = Lexer();
 
 	while (inFile.peek() != EOF) {
-		std::cout << "token: " << getToken(inFile) << std::endl;
+		std::cout << "token: " << lexer.getToken(inFile) << std::endl;
 	}
 
 	return 0;
 }
 
-std::string getToken(std::ifstream& inFile) {
+std::string Lexer::getToken(std::ifstream& inFile) {
 	std::string token = "";
 	char nextch;
 	inFile.get(nextch);
@@ -37,6 +38,15 @@ std::string getToken(std::ifstream& inFile) {
 		case '\r':
 			token = "NEWLINE";
 			break;
+		case '\'': //Char
+			completeCharToken();
+			break;
+		case '"':  //String
+			completeStringToken();
+			break;
+		case '{':  //Comment
+			completeCommentToken();
+			break;
 		default:
 			/*Either error or as-of-yet undefined behavior here*/
 			token = std::to_string((int)(nextch));
@@ -47,7 +57,7 @@ std::string getToken(std::ifstream& inFile) {
 	return token;
 }
 
-int completeWhiteSpaceToken(std::ifstream& inFile, std::string& token, char& nextch) {
+int Lexer::completeWhiteSpaceToken(std::ifstream& inFile, std::string& token, char& nextch) {
 	while (isWhiteSpace((char)(inFile.peek()))) {
 		inFile.get(nextch);
 		token += nextch;
@@ -55,7 +65,7 @@ int completeWhiteSpaceToken(std::ifstream& inFile, std::string& token, char& nex
 	return token.length();
 }
 
-int completeIdentifierToken(std::ifstream& inFile, std::string& token, char& nextch) {
+int Lexer::completeIdentifierToken(std::ifstream& inFile, std::string& token, char& nextch) {
 	nextch = (char)(inFile.peek());
 	while (isalnum(nextch) || nextch == '_') {
 		inFile.get(nextch);
@@ -65,7 +75,7 @@ int completeIdentifierToken(std::ifstream& inFile, std::string& token, char& nex
 	return token.length();
 }
 
-int completeNumericToken(std::ifstream& inFile, std::string& token, char& nextch) {
+int Lexer::completeNumericToken(std::ifstream& inFile, std::string& token, char& nextch) {
 	nextch = (char)(inFile.peek());
 	while (isdigit(nextch)) {
 		inFile.get(nextch);
@@ -76,6 +86,6 @@ int completeNumericToken(std::ifstream& inFile, std::string& token, char& nextch
 }
 
 
-bool isWhiteSpace(const char ch) {
+bool Lexer::isWhiteSpace(const char ch) {
 	return strchr("\t\v\f ", ch);
 }
