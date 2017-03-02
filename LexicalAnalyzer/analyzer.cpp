@@ -6,21 +6,27 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
-	std::ifstream inFile;
-	inFile.open(argv[1], std::ifstream::in);
-	
-	if (!inFile.is_open()) {
-		std::cerr << "Unable to open file " << argv[1] << std::endl;
-		return -2;
-	}
+	Lexer lexer = Lexer(argv[1]);
 
-	Lexer lexer = Lexer();
-
-	while (inFile.peek() != EOF) {
-		std::cout << "token: " << lexer.getToken(inFile) << std::endl;
+	while (lexer.peekIfstream() != EOF) {
+		std::cout << "token: " << lexer.getToken() << std::endl;
 	}
 
 	return 0;
+}
+
+Lexer::Lexer() {
+
+}
+
+Lexer::Lexer(char* filename) {
+	this->inFile.open(filename, std::ifstream::in);
+
+
+	if (!this->inFile.is_open()) {
+		std::cerr << "Unable to open file " << filename << std::endl;
+		exit(-2);
+	}
 }
 
 std::string Lexer::getToken(std::ifstream& inFile) {
@@ -39,13 +45,13 @@ std::string Lexer::getToken(std::ifstream& inFile) {
 			token = "NEWLINE";
 			break;
 		case '\'': //Char
-			completeCharToken();
+			//completeCharToken();
 			break;
 		case '"':  //String
-			completeStringToken();
+			//completeStringToken();
 			break;
 		case '{':  //Comment
-			completeCommentToken();
+			//completeCommentToken();
 			break;
 		default:
 			/*Either error or as-of-yet undefined behavior here*/
@@ -84,6 +90,68 @@ int Lexer::completeNumericToken(std::ifstream& inFile, std::string& token, char&
 	}
 	return token.length();
 }
+
+std::string Lexer::getToken() {
+	token = "";
+	inFile.get(nextch);
+	token += nextch;
+
+	if (isWhiteSpace(nextch)) completeWhiteSpaceToken();
+	else if (isalpha(nextch) || nextch == '_') completeIdentifierToken();
+	else if (isdigit(nextch)) completeNumericToken();
+	else {
+		switch (nextch) {
+		case '\n':
+		case '\r':
+			token = "NEWLINE";
+			break;
+		case '\'': //Char
+				   //completeCharToken();
+			break;
+		case '"':  //String
+				   //completeStringToken();
+			break;
+		case '{':  //Comment
+				   //completeCommentToken();
+			break;
+		default:
+			/*Either error or as-of-yet undefined behavior here*/
+			token = std::to_string((int)(nextch));
+			break;
+		}
+	}
+
+	return token;
+}
+
+int Lexer::completeWhiteSpaceToken() {
+	while (isWhiteSpace((char)(inFile.peek()))) {
+		inFile.get(nextch);
+		token += nextch;
+	}
+	return token.length();
+}
+
+int Lexer::completeIdentifierToken() {
+	nextch = (char)(inFile.peek());
+	while (isalnum(nextch) || nextch == '_') {
+		inFile.get(nextch);
+		token += nextch;
+		nextch = (char)(inFile.peek());
+	}
+	return token.length();
+}
+
+int Lexer::completeNumericToken() {
+	nextch = (char)(inFile.peek());
+	while (isdigit(nextch)) {
+		inFile.get(nextch);
+		token += nextch;
+		nextch = (char)(inFile.peek());
+	}
+	return token.length();
+}
+
 
 
 bool Lexer::isWhiteSpace(const char ch) {

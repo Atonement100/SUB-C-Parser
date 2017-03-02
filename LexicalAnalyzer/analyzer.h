@@ -6,6 +6,9 @@
 
 class Lexer {
 private:
+	std::ifstream inFile;
+	std::string token;
+	char nextch;
 
 protected:
 	bool isWhiteSpace(char ch);
@@ -13,9 +16,16 @@ protected:
 	int completeIdentifierToken(std::ifstream& inFile, std::string& token, char& nextch);
 	int completeNumericToken(std::ifstream& inFile, std::string& token, char& nextch);
 
+	int completeWhiteSpaceToken();
+	int completeIdentifierToken();
+	int completeNumericToken();
+
 public:
 	std::string getToken(std::ifstream& inFile);
-
+	std::string getToken();
+	int peekIfstream() { return inFile.peek(); }
+	Lexer();
+	Lexer(char* filename);
 };
 
 int main(int argc, char* argv[]);
