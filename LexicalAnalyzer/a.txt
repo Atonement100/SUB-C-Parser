@@ -1,10 +1,18 @@
-alphabet
+{alphabet
 asdfasd 
 
-a1242 
-
-ff f f 
+a1"24"2 
+""
+"ff f f "
 
 333 452
 
-fasdfm 
+fas
+dfm 
+}
+'a'
+'\'
+'b'
+'''
+'"'
+"'''''''"

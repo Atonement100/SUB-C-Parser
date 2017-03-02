@@ -19,6 +19,9 @@ protected:
 	int completeWhiteSpaceToken();
 	int completeIdentifierToken();
 	int completeNumericToken();
+	int completeCommentToken();
+	int completeStringToken();
+	int completeCharToken();
 
 public:
 	std::string getToken(std::ifstream& inFile);

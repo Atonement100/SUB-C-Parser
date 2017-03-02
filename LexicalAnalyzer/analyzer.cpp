@@ -106,17 +106,17 @@ std::string Lexer::getToken() {
 			token = "NEWLINE";
 			break;
 		case '\'': //Char
-				   //completeCharToken();
+				   completeCharToken();
 			break;
 		case '"':  //String
-				   //completeStringToken();
+				   completeStringToken();
 			break;
 		case '{':  //Comment
-				   //completeCommentToken();
+				   completeCommentToken();
 			break;
 		default:
 			/*Either error or as-of-yet undefined behavior here*/
-			token = std::to_string((int)(nextch));
+			token = std::to_string((int)(nextch)) + " = " + nextch + " << INVALID TOKEN ";
 			break;
 		}
 	}
@@ -152,7 +152,55 @@ int Lexer::completeNumericToken() {
 	return token.length();
 }
 
+int Lexer::completeCommentToken() {
+	inFile.get(nextch);
+	while (nextch != '}' && inFile.peek() != EOF) {
+		token += nextch;
+		inFile.get(nextch);
+	}
 
+	if (nextch == '}') {
+		token += nextch;
+	}
+	else {
+		token += "UNMATCHED BRACE";//Error
+	}
+
+	return token.length();
+}
+
+int Lexer::completeStringToken() {
+	inFile.get(nextch);
+	while (nextch != '"' && inFile.peek() != EOF) {
+		token += nextch;
+		inFile.get(nextch);
+	}
+
+	if (nextch == '"') {
+		token += nextch;
+	}
+	else {
+		token += "UNMATCHED QUOTE";//Error
+	}
+
+	return token.length();
+}
+
+int Lexer::completeCharToken() {
+	char nextchs[2];
+	inFile.get(nextchs,3);
+	
+	std::cout << nextch << nextchs[0] << nextchs[1];
+
+	if (nextchs[0] != '\'' && nextchs[1] == '\'') {
+		token += std::string(nextchs);
+	}
+	else {
+		token += "INCORRECT CHAR FORMAT";//Error
+	}
+
+	return token.length();
+}
 
 bool Lexer::isWhiteSpace(const char ch) {
 	return strchr("\t\v\f ", ch);
