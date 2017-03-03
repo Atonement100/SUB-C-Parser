@@ -11,8 +11,10 @@ int main(int argc, char* argv[]) {
 	Token currentToken;
 	while (lexer.peekInput() != EOF) {
 		currentToken = lexer.getToken();
-		std::cout << "token: " << currentToken.getText() << " type: " << currentToken.getType() << std::endl;
+		std::cout << "token: " << currentToken.getText() << " type: " << currentToken.getTypeAsString() << std::endl;
 	}
+
+	std::cout << Token::convertTokenTypeToString(TokenType::WHITESPACE);
 
 	return 0;
 }
@@ -32,10 +34,7 @@ Token Lexer::getToken() {
 	tokenStr += nextch;
 
 	if (isWhiteSpace(nextch)) completeWhiteSpaceToken();
-	else if (isalpha(nextch) || nextch == '_') {
-		completeAlphaToken();
-		identifyAlphaToken(tokenStr);
-	}
+	else if (isalpha(nextch) || nextch == '_') completeAlphaToken(); 
 	else if (isdigit(nextch)) completeNumericToken();
 	else {
 		switch (nextch) {
@@ -186,11 +185,7 @@ int Lexer::completeAlphaToken() {
 		nextch = peekInput();
 	}
 
-	/*
-	* Need to add logic here to identify reserved tokens etc
-	*/
-
-	nextTokenType = TokenType::UNKNOWN;
+	nextTokenType = identifyAlphaToken(tokenStr);
 	return tokenStr.length();
 }
 
