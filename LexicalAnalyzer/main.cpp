@@ -8,17 +8,23 @@ int main(int argc, char* argv[]) {
 		return -1;
 	}
 
-	parseAll(argv[1]);
+	recursiveDescent(argv[1]);
 
 	return 0;
 }	
+
+void recursiveDescent(char* filename) {
+	Lexer lexer = Lexer(filename);
+	Parser parser = Parser(&lexer);
+	parser.Tiny();
+}
 
 void parseAll(char* filename) {
 	Lexer lexer = Lexer(filename);
 
 	Token currentToken;
 	while (lexer.peekInput() != EOF) {
-		currentToken = lexer.getToken();
+		currentToken = lexer.getNextToken();
 		std::cout << "token: " << currentToken.getText() << " type: " << currentToken.getTypeAsString() << std::endl;
 	}
 }

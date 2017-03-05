@@ -14,6 +14,8 @@ private:
 	std::string tokenStr;
 	TokenType nextTokenType;
 	char nextch;
+	std::vector<TokenType> uselessTokenTypes = { TokenType::COMMENT, TokenType::WHITESPACE, TokenType::ENDLINE };
+	Token currentToken;
 
 protected:
 	bool isWhiteSpace(char ch);
@@ -30,9 +32,13 @@ protected:
 	int completeDotToken();
 
 public:
+	Lexer() {};
 	Lexer(char* filename);
 
-	Token getToken();
+	Token getNextToken();
+	Token getNextUsefulToken();
+	Token getCurrentToken() { return currentToken; }
+
 	int peekInput() { return (char)(inFile.peek()); }
 	TokenType identifyAlphaToken(std::string token);
 

@@ -1,4 +1,5 @@
 #include "analyzer.h"
+#include <algorithm>
 
 Lexer::Lexer(char* filename) {
 	this->inFile.open(filename, std::ifstream::in);
@@ -7,11 +8,25 @@ Lexer::Lexer(char* filename) {
 		std::cerr << "Unable to open file " << filename << std::endl;
 		exit(-2);
 	}
+
+	currentToken = Token("invalid", TokenType::INVALID);
 }
 
-Token Lexer::getToken() {
+Token Lexer::getNextUsefulToken() {
+	Token nextUseful;
+	do {
+		nextUseful = getNextToken();
+	} while (std::find(uselessTokenTypes.begin(), uselessTokenTypes.end(), nextUseful.getType()) != uselessTokenTypes.end());
+	return nextUseful;
+}
+
+Token Lexer::getNextToken() {
 	tokenStr = "";
-	inFile.get(nextch);
+
+	if (!inFile.get(nextch)) {
+		return Token("FILE_END", TokenType::TRUE_EOF);
+	}
+
 	tokenStr += nextch;
 
 	if (isWhiteSpace(nextch)) completeWhiteSpaceToken();
@@ -82,7 +97,8 @@ Token Lexer::getToken() {
 		}
 	}
 
-	return Token(tokenStr, nextTokenType);
+	currentToken = Token(tokenStr, nextTokenType);
+	return currentToken;
 }
 
 int Lexer::completeColonToken() {

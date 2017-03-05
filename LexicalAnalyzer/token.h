@@ -64,6 +64,7 @@ typedef enum TokenType {
 	MINUS,
 	MULTIPLY,
 	DIVIDE,
+	TRUE_EOF, //end of actual file, not grammar's eof
 	UNKNOWN, //unset
 	INVALID //error
 } TokenType;
@@ -107,6 +108,7 @@ public:
 		case WHILE: return "while";
 		case DO: return "do";
 		case OF: return "of";
+		case CASE: return "case";
 		case CASE_DOTS: return "..";
 		case OTHERWISE: return "otherwise";
 		case REPEAT: return "repeat";
@@ -143,6 +145,7 @@ public:
 		case MINUS: return "-";
 		case MULTIPLY: return "*";
 		case DIVIDE: return "/";
+		case TRUE_EOF: return "TRUE_EOF";
 		case UNKNOWN: return "UNKNOWN";
 		case INVALID: return "INVALID";
 		default: return "ERROR";
