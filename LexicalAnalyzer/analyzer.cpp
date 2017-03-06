@@ -101,6 +101,7 @@ Token Lexer::getNextToken() {
 	}
 
 	currentToken = Token(tokenStr, nextTokenType);
+	//std::cout << std::endl << currentToken.getText() << std::endl;
 	return currentToken;
 }
 
@@ -162,7 +163,7 @@ int Lexer::completeLessThanToken() {
 		nextTokenType = TokenType::NOT_EQUAL;
 	}
 	else {
-		nextTokenType = TokenType::COLON;
+		nextTokenType = TokenType::LESS_THAN;
 	}
 
 	return tokenStr.length();

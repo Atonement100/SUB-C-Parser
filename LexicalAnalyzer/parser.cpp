@@ -64,9 +64,10 @@ void Parser::ConstValue() {
 	case TokenType::CHAR:
 		ConsumeToken(TokenType::CHAR);
 		break;
-	default:
+	case TokenType::IDENTIFIER:
 		Name();
-		ConsumeToken(TokenType::SEMICOLON);
+		break;
+	default:
 		break;
 	}
 }
@@ -281,7 +282,6 @@ void Parser::Caseclauses() {
 		ConsumeToken(TokenType::SEMICOLON);
 		nextType = currentToken.getType();
 	} while (nextType == TokenType::INTEGER || nextType == TokenType::CHAR || nextType == TokenType::IDENTIFIER);
-	ConsumeToken(TokenType::SEMICOLON);
 }
 
 void Parser::Caseclause() {
@@ -290,7 +290,6 @@ void Parser::Caseclause() {
 		ConsumeToken(TokenType::COMMA);
 		CaseExpression();
 	}
-
 	ConsumeToken(TokenType::COLON);
 	Statement();
 }
@@ -308,9 +307,6 @@ void Parser::OtherwiseClause() {
 	case TokenType::OTHERWISE:
 		ConsumeToken(TokenType::OTHERWISE);
 		Statement();
-		break;
-	case TokenType::SEMICOLON:
-		ConsumeToken(TokenType::SEMICOLON);
 		break;
 	default:
 		break;
@@ -507,6 +503,7 @@ void Parser::Primary() {
 
 void Parser::Name() {
 	ConsumeToken(TokenType::IDENTIFIER);
+
 }
 
 void Parser::PrintParseError(std::vector<TokenType> expected, TokenType received) {
