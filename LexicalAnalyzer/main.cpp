@@ -3,13 +3,14 @@
 #include "main.h"
 
 int main(int argc, char* argv[]) {
-	if (argc < 2) {
-		std::cerr << "Not enough arguments." << std::endl;
-		return -1;
-	}
+	//if (argc < 2) {
+	//	std::cerr << "Not enough arguments." << std::endl;
+	//	return -1;
+	//}
 
-	recursiveDescent(argv[1]);
-
+	recursiveDescent("tiny_02");
+	std::string a;
+	std::cin >> a;
 	return 0;
 }	
 

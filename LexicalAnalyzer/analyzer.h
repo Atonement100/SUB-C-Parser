@@ -24,6 +24,7 @@ protected:
 	int completeAlphaToken();
 	int completeNumericToken();
 	int completeCommentToken();
+	int completeLineCommentToken();
 	int completeStringToken();
 	int completeCharToken();
 	int completeColonToken();

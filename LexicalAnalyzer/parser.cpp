@@ -6,7 +6,7 @@ void Parser::ConsumeToken(TokenType expected) {
 		PrintParseError(expected, currentToken.getType());
 		exit(-3);
 	}
-	std::cout << "Successfully read token: " << currentToken.getTypeAsString() << std::endl;
+	std::cout << "Successfully read token: " << currentToken.getTypeAsString() << " : " << currentToken.getText() << std::endl;
 	currentToken = lexer->getNextUsefulToken();
 }
 
@@ -290,7 +290,8 @@ void Parser::Caseclause() {
 		ConsumeToken(TokenType::COMMA);
 		CaseExpression();
 	}
-	ConsumeToken(TokenType::SEMICOLON);
+
+	ConsumeToken(TokenType::COLON);
 	Statement();
 }
 

@@ -50,6 +50,9 @@ Token Lexer::getNextToken() {
 		case '{':  //Comment
 			completeCommentToken();
 			break;
+		case '#':
+			completeLineCommentToken();
+			break;
 		case ':': //Swap, Assignment, or standalone colon
 			completeColonToken();
 			break;
@@ -213,6 +216,17 @@ int Lexer::completeCommentToken() {
 		nextTokenType = TokenType::INVALID;
 	}
 
+	nextTokenType = TokenType::COMMENT;
+	return tokenStr.length();
+}
+
+int Lexer::completeLineCommentToken()
+{
+	inFile.get(nextch);
+	while (nextch != '\n' && peekInput() != EOF) {
+		tokenStr += nextch;
+		inFile.get(nextch);
+	}
 	nextTokenType = TokenType::COMMENT;
 	return tokenStr.length();
 }
