@@ -13,7 +13,15 @@ public:
 	std::string getTokenText() { return this->token.getText(); }
 
 	void PrintNode() {
-		std::cout << token.getTypeAsString() << std::endl;
+		int numChildren = 0;
+		BinaryTreeNode* child = this->getChild();
+
+		while (child) {
+			child = child->getSibling();
+			numChildren++;
+		}
+
+		std::cout << token.getText() << "(" << numChildren << ")" << std::endl;
 	}
 
 	void PrintLeadingDots(int numDots) {
@@ -24,7 +32,10 @@ public:
 	}
 
 	void LeftToRightPreorder(int depth) {
-		if (this) { PrintLeadingDots(depth); this->PrintNode(); }
+		if (this) { 
+			this->PrintLeadingDots(depth); 
+			this->PrintNode(); 
+		}
 		if (this->left) { this->left->LeftToRightPreorder(depth+1); } 
 		if (this->right) { this->right->LeftToRightPreorder(depth); }
 	}

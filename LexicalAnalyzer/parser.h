@@ -11,6 +11,7 @@ protected:
 	Lexer *lexer;
 	std::vector< LCRSTree > treeStack;
 	//std::stack< LCRSTree, std::vector<LCRSTree> > treeStack;
+	std::vector<TokenType> buildableTokens = {TokenType::IDENTIFIER, TokenType::INTEGER, TokenType::CHAR, TokenType::STRING};
 
 public:
 	Parser(Lexer *lexer) {
