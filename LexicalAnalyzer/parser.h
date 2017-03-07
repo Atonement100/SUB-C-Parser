@@ -37,10 +37,10 @@ public:
 	void Statement();
 	void OutExp();
 	void StringNode();
-	void Caseclauses();
+	int Caseclauses();
 	void Caseclause();
 	void CaseExpression();
-	void OtherwiseClause();
+	int OtherwiseClause();
 	void Assignment();
 	void ForStat();
 	void ForExp();

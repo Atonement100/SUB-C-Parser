@@ -319,15 +319,17 @@ void Parser::Statement() {
 		BuildTree(Token("loop", TokenType::LOOP), numStatements);
 		break;
 	}
-	case TokenType::CASE:
+	case TokenType::CASE: {
+		int numTreesToPop = 1;
 		ConsumeToken(TokenType::CASE);
 		Expression();
 		ConsumeToken(TokenType::OF);
-		Caseclauses();
-		OtherwiseClause();
+		numTreesToPop += Caseclauses();
+		numTreesToPop += OtherwiseClause();
 		ConsumeToken(TokenType::END);
-		BuildTree(Token("case", TokenType::CASE), 3);
+		BuildTree(Token("case", TokenType::CASE), numTreesToPop);
 		break;
+	}
 	case TokenType::READ: {
 		ConsumeToken(TokenType::READ);
 		ConsumeToken(TokenType::PARENTHESIS_START);
@@ -377,13 +379,16 @@ void Parser::StringNode() {
 	BuildTree(Token("<string>", TokenType::STRING), 1);
 }
 
-void Parser::Caseclauses() {
+int Parser::Caseclauses() {
 	TokenType nextType;
+	int numCaseclauses = 0;
 	do {
 		Caseclause();
 		ConsumeToken(TokenType::SEMICOLON);
 		nextType = currentToken.getType();
+		numCaseclauses++;
 	} while (nextType == TokenType::INTEGER || nextType == TokenType::CHAR || nextType == TokenType::IDENTIFIER);
+	return numCaseclauses;
 }
 
 void Parser::Caseclause() {
@@ -408,15 +413,15 @@ void Parser::CaseExpression() {
 	}
 }
 
-void Parser::OtherwiseClause() {
+int Parser::OtherwiseClause() {
 	switch (currentToken.getType()) {
 	case TokenType::OTHERWISE:
 		ConsumeToken(TokenType::OTHERWISE);
 		Statement();
 		BuildTree(Token("otherwise", TokenType::OTHERWISE), 1);
-		break;
+		return 1;
 	default:
-		break;
+		return 0;
 	}
 }
 
@@ -596,7 +601,7 @@ void Parser::Primary() {
 				numExpressions++;
 			}
 			ConsumeToken(TokenType::PARENTHESIS_END);
-			BuildTree(Token("call", TokenType::CALL), 2);
+			BuildTree(Token("call", TokenType::CALL), numExpressions+1);
 		}
 		break;
 	case TokenType::PARENTHESIS_START:

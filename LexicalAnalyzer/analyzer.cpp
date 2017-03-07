@@ -254,8 +254,6 @@ int Lexer::completeStringToken() {
 int Lexer::completeCharToken() {
 	char nextchs[2];
 	inFile.get(nextchs,3);
-	
-	std::cout << nextch << nextchs[0] << nextchs[1];
 
 	if (nextchs[0] != '\'' && nextchs[1] == '\'') {
 		tokenStr += std::string(nextchs);
