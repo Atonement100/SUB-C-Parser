@@ -1,5 +1,9 @@
 #include "tree.h"
 
-LCRSTree::LCRSTree(BinaryTreeNode* root) {
-	this->root = root;
+LCRSTree::LCRSTree(Token rootToken) {
+	this->root = new BinaryTreeNode(rootToken);
+}
+
+void LCRSTree::PrintTree() {
+	this->root->LeftToRightPreorder(0);
 }

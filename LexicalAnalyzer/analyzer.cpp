@@ -13,7 +13,7 @@ Lexer::Lexer(char* filename) {
 }
 
 Token Lexer::getNextUsefulToken() {
-	Token nextUseful;
+	Token nextUseful = Token("invalid", TokenType::INVALID);
 	do {
 		nextUseful = getNextToken();
 	} while (std::find(uselessTokenTypes.begin(), uselessTokenTypes.end(), nextUseful.getType()) != uselessTokenTypes.end());

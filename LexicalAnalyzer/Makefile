@@ -1,6 +1,6 @@
 CXX = g++
 CXXFLAGS = -Wall -std=c++11
-OBJS = main.o parser.o token.o analyzer.o
+OBJS = main.o parser.o token.o analyzer.o tree.o
 
 all: parser
 
@@ -18,3 +18,5 @@ token.o: token.cpp
 analyzer.o: analyzer.cpp 
 
 parser.o: parser.cpp
+
+tree.o: tree.cpp

@@ -12,10 +12,17 @@ typedef enum TokenType {
 	COMMENT,
 	PROGRAM,
 	VAR,
+	CONSTS,
 	CONST,
+	TYPES,
 	TYPE,
+	LITLIST,
+	SUBPROGS,
 	FUNCTION,
+	PARAMS,
 	RETURN,
+	DCLNS,
+	BLOCK,
 	BEGIN,
 	END,
 	SWAP,
@@ -64,6 +71,12 @@ typedef enum TokenType {
 	MINUS,
 	MULTIPLY,
 	DIVIDE,
+	NULL_ID,
+	INTEGER_NOBRACE,
+	STRING_NOBRACE,
+	CASE_CLAUSE,
+	BOOL_TRUE,
+	CALL,
 	TRUE_EOF, //end of actual file, not grammar's eof
 	UNKNOWN, //unset
 	INVALID //error
@@ -76,7 +89,6 @@ protected:
 	TokenType type;
 
 public:
-	Token();
 	Token(std::string text, TokenType type);
 	std::string getText() { return this->text; }
 	TokenType getType() { return this->type; }
@@ -93,10 +105,17 @@ public:
 		case COMMENT: return "<comment>";
 		case PROGRAM: return "program";
 		case VAR: return "var";
+		case CONSTS: return "consts";
 		case CONST: return "const";
+		case TYPES: return "types";
 		case TYPE: return "type";
-		case FUNCTION: return "function";
+		case LITLIST: return "lit";
+		case SUBPROGS: return "subprogs";
+		case FUNCTION: return "fcn";
+		case PARAMS: return "params";
 		case RETURN: return "return";
+		case DCLNS: return "dclns";
+		case BLOCK: return "block";
 		case BEGIN: return "begin";
 		case END: return "end";
 		case SWAP: return "swap";
@@ -108,6 +127,7 @@ public:
 		case WHILE: return "while";
 		case DO: return "do";
 		case OF: return "of";
+		case READ: return "read";
 		case CASE: return "case";
 		case CASE_DOTS: return "..";
 		case OTHERWISE: return "otherwise";
@@ -123,11 +143,10 @@ public:
 		case GREATER_OR_EQUAL: return ">=";
 		case GREATER_THAN: return ">";
 		case EQUAL: return "=";
-		case MOD: return "%";
+		case MOD: return "mod";
 		case AND: return "and";
 		case OR: return "or";
 		case NOT: return "not";
-		case READ: return "read";
 		case SUCC: return "succ";
 		case PRED: return "pred";
 		case CHR: return "chr";
@@ -145,6 +164,12 @@ public:
 		case MINUS: return "-";
 		case MULTIPLY: return "*";
 		case DIVIDE: return "/";
+		case NULL_ID: return "<null>";
+		case INTEGER_NOBRACE: return "integer";
+		case STRING_NOBRACE: return "string";
+		case CASE_CLAUSE: return "case_clause";
+		case BOOL_TRUE: return "true";
+		case CALL: return "call";
 		case TRUE_EOF: return "TRUE_EOF";
 		case UNKNOWN: return "UNKNOWN";
 		case INVALID: return "INVALID";

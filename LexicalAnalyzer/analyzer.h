@@ -14,8 +14,8 @@ private:
 	std::string tokenStr;
 	TokenType nextTokenType;
 	char nextch;
-	std::vector<TokenType> uselessTokenTypes = { TokenType::COMMENT, TokenType::WHITESPACE, TokenType::ENDLINE };
-	Token currentToken;
+	std::vector<TokenType> uselessTokenTypes = { TokenType::COMMENT, TokenType::WHITESPACE, TokenType::ENDLINE, TokenType::INVALID };
+	Token currentToken = Token("invalid", TokenType::INVALID);
 
 protected:
 	bool isWhiteSpace(char ch);
@@ -33,7 +33,7 @@ protected:
 	int completeDotToken();
 
 public:
-	Lexer() {};
+	//Lexer() {};
 	Lexer(char* filename);
 
 	Token getNextToken();

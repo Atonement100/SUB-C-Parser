@@ -1,16 +1,23 @@
 #pragma once 
 #include "analyzer.h"
+#include "tree.h"
 #include <iostream>
 #include <vector>
+#include <stack>
 
 class Parser {
 protected:
-	Token currentToken;
+	Token currentToken = Token("invalid", TokenType::INVALID);
 	Lexer *lexer;
+	std::vector< LCRSTree > treeStack;
+	//std::stack< LCRSTree, std::vector<LCRSTree> > treeStack;
+
 public:
 	Parser(Lexer *lexer) {
 		this->lexer = lexer;
 	};
+
+	void BuildTree(Token rootToken, int numTreesToPop);
 
 	void ConsumeToken(TokenType expected);
 	void Tiny();
@@ -44,4 +51,6 @@ public:
 
 	void PrintParseError(std::vector<TokenType> expected, TokenType received);
 	void PrintParseError(TokenType expected, TokenType received);
+	void PrintStack();
+	void PrintTree();
 };

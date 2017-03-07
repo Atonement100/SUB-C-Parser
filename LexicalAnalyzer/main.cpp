@@ -17,12 +17,13 @@ void recursiveDescent(char* filename) {
 	Lexer lexer = Lexer(filename);
 	Parser parser = Parser(&lexer);
 	parser.Tiny();
+	parser.PrintTree();
 }
 
 void parseAll(char* filename) {
 	Lexer lexer = Lexer(filename);
 
-	Token currentToken;
+	Token currentToken = Token("invalid", TokenType::INVALID);
 	while (lexer.peekInput() != EOF) {
 		currentToken = lexer.getNextToken();
 		std::cout << "token: " << currentToken.getText() << " type: " << currentToken.getTypeAsString() << std::endl;

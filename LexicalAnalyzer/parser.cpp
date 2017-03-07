@@ -7,9 +7,43 @@ void Parser::ConsumeToken(TokenType expected) {
 		exit(-3);
 	}
 	std::cout << "Successfully read token: " << currentToken.getTypeAsString() << " : " << currentToken.getText() << std::endl;
+	treeStack.push_back(LCRSTree(currentToken));
 	currentToken = lexer->getNextUsefulToken();
 }
 
+void Parser::BuildTree(Token rootToken, int numTreesToPop) {
+	if (numTreesToPop < 1) return;
+
+	std::vector< LCRSTree > localStack;
+
+	LCRSTree newRootTree = LCRSTree(rootToken);
+
+	for (int numLeft = numTreesToPop; numLeft > 0; numLeft--) {
+		localStack.push_back(treeStack.back());
+		treeStack.pop_back();
+	}
+
+	BinaryTreeNode* recentSibling = newRootTree.getRoot()->AddChild(localStack.back().getRoot());
+	localStack.pop_back();
+
+	while (!localStack.empty()) {
+		recentSibling = recentSibling->AddSibling(localStack.back().getRoot());
+		localStack.pop_back();
+	}
+
+	treeStack.push_back(newRootTree);
+}
+
+void Parser::PrintStack() {
+	while (!treeStack.empty()) {
+		treeStack.back().getRoot()->PrintNode();
+		treeStack.pop_back();
+	}
+}
+
+void Parser::PrintTree() {
+	treeStack.back().PrintTree();
+}
 
 void Parser::Tiny() {
 	currentToken = lexer->getNextUsefulToken(); //Initialize descent
